@@ -1,0 +1,1115 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO内容质量综合报告 - 内容重复URL</title>
+    <style>
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+        .section {
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+        th:hover {
+            background-color: #2c3e50;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .high-duplicate {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        .url-cell {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .duplicate-rate {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .quality-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+        }
+        .quality-excellent {
+            background-color: #2ecc71;
+        }
+        .quality-good {
+            background-color: #3498db;
+        }
+        .quality-fair {
+            background-color: #f39c12;
+        }
+        .quality-poor {
+            background-color: #e74c3c;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .collapsible {
+            cursor: pointer;
+            color: #3498db;
+            text-decoration: underline;
+        }
+        .detail-content {
+            display: none;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 10px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .detail-section {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 3px solid #e74c3c;
+        }
+        .duplicate-detail {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .pagination a {
+            color: black;
+            padding: 8px 14px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .pagination a.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #f1f1f1;
+        }
+        .pagination-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #7f8c8d;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .navigation a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .navigation a:hover {
+            background-color: #2980b9;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 响应式表格样式 */
+        @media screen and (max-width: 1024px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            .url-cell {
+                max-width: 200px;
+            }
+            th, td {
+                min-width: 80px;
+                vertical-align: top;
+                word-break: break-word;
+            }
+            th:first-child, td:first-child {
+                min-width: 200px;
+            }
+            th:last-child, td:last-child {
+                min-width: 80px;
+            }
+            .detail-content {
+                white-space: normal;
+                min-width: 250px;
+                max-width: 300px;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .navigation a {
+                width: 100%;
+                text-align: center;
+            }
+            td {
+                vertical-align: top;
+            }
+            .detail-content {
+                max-width: 300px;
+                overflow-x: hidden;
+            }
+            .duplicate-detail {
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SEO内容质量综合报告 - 内容重复URL</h1>
+        <p>生成时间: 2025-12-25 16:38:57</p>
+    </header>
+    <div class="container">
+        <div class="navigation">
+            <a href="index.html">返回首页</a>
+            <a href="duplicate_urls_export.csv" class="export-btn" download>导出CSV</a>
+        </div>
+        
+        <div class="section">
+            <h2>内容重复URL</h2>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索URL...">
+            </div>
+            
+            <table id="urlTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)">URL</th>
+                        <th onclick="sortTable(1)">目录</th>
+                        <th onclick="sortTable(2)">重复率</th>
+                        <th onclick="sortTable(3)">重复段落/总段落</th>
+                        <th onclick="sortTable(4)">质量等级</th>
+                        <th>详情</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/acca/bm/202506124566577.html" target="_blank">https://www.dongao.com/acca/bm/202506124566577.html</a></td>
+                    <td>www.dongao.com/acca/bm</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-12  10:47:03</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年6月acca考试时间已确定，为6月2日至6月6日。考试分为上午场（9:00开始）、下午场（13:30开始，周二为14:30开始）和晚上场（18:00开始，周二无...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cma/cjcx/202506104565897.html" target="_blank">https://www.dongao.com/cma/cjcx/202506104565897.html</a></td>
+                    <td>www.dongao.com/cma/cjcx</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-10  13:24:09</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '25年7月cma考试结果什么时候出？2025年7月cma考试结果预计在9月中旬至10月初公布。成绩通常在考试日期后6至8周发布，考生可通过IMA中国官网或官方邮件查询。....</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506134567194.html" target="_blank">https://www.dongao.com/cjks/cf/202506134567194.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">66.67%</span></td>
+                    <td>4 / 6</td>
+                    <td><span class="quality-badge quality-poor">极差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张梦2025-06-13  14:02:27</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-poor">极差</span></p>
+                            <p><strong>段落总数:</strong> 6</p>
+                            <p><strong>重复评分:</strong> 33.33</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....<br><p>2. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....<br><p>3. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....<br><p>4. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506134565191.html" target="_blank">https://www.dongao.com/cjks/cf/202506134565191.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：刘雪晶2025-06-13  09:52:16</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '初级会计2025年考试成绩什么时候公布？2025年初级会计考试的成绩将于6月27日公布。届时，考生可通过“全国会计人员统一服务管理平台”，按照页面提示输入相关信息，即可查...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/acca/cjcx/202506094565398.html" target="_blank">https://www.dongao.com/acca/cjcx/202506094565398.html</a></td>
+                    <td>www.dongao.com/acca/cjcx</td>
+                    <td><span class="duplicate-rate">50.00%</span></td>
+                    <td>2 / 4</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-09  15:47:56</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 4</p>
+                            <p><strong>重复评分:</strong> 50.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年6月acca国际注册会计师考试成绩复核流程什么样？2025年6月acca成绩复核需在成绩发布后15个工作日内启动。想要复核成绩的考生要在规定时间内按照步骤进行复...<br><p>2. {'paragraph': '考生需在成绩发布后15个工作日内启动复核。首先登录ACCA官网，进入MY ACCA，点击“Exam Status and Results”，再点击“Administrat...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cma/bmsj/202506094565379.html" target="_blank">https://www.dongao.com/cma/bmsj/202506094565379.html</a></td>
+                    <td>www.dongao.com/cma/bmsj</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-09  15:44:32</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '25年7月cma中文考试报名时间是几月几号？cma考试报名截止到6月9日，考生需在此日期前完成缴费等报名手续，考位预约截止时间为2025年6月16日，考试日期定为2025...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/acca/bm/202506134566579.html" target="_blank">https://www.dongao.com/acca/bm/202506134566579.html</a></td>
+                    <td>www.dongao.com/acca/bm</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-13  10:41:59</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年ACCA考试全部费用包含注册费、年费、考试费和教材费。注册费为一次性缴纳的89英镑；年费为每年137英镑；考试费因科目和报名时间不同而异，常规报名F4 - F9...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cma/cjcx/202506134566576.html" target="_blank">https://www.dongao.com/cma/cjcx/202506134566576.html</a></td>
+                    <td>www.dongao.com/cma/cjcx</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-13  10:41:09</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年7月cma考试成绩预计在9月上旬到中旬公布。考生可通过两种方式查询：一是登录IMA中国官网（https://www.imachina.org.cn/），点击“我...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cma/cjcx/202506104565898.html" target="_blank">https://www.dongao.com/cma/cjcx/202506104565898.html</a></td>
+                    <td>www.dongao.com/cma/cjcx</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-10  13:25:06</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年7月cma美国注册管理会计师考试成绩预计在9月中旬至10月初公布。根据cma考试规则，中文考试成绩通常在考试日期后6至8周发布，而2025年7月cma中文考试具...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cma/bmlc/202506094565387.html" target="_blank">https://www.dongao.com/cma/bmlc/202506094565387.html</a></td>
+                    <td>www.dongao.com/cma/bmlc</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-09  15:46:55</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '25年7月cma美国注册管理会计师中文考试怎么预约考位？考试考位预约需登录普尔文官网，输入考试授权码和姓氏拼音前4位，选择考试城市、考点及日期，确认信息无误后提交，生成确...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/acca/bm/202506124566578.html" target="_blank">https://www.dongao.com/acca/bm/202506124566578.html</a></td>
+                    <td>www.dongao.com/acca/bm</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-12  10:47:25</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '25年6月acca季考需要缴纳哪些费用？一般情况下acca考试需缴纳注册费89英镑、年费137英镑及各科目考试费（如F4 - F9为163英镑/科等）。备考之路虽充满挑战...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cma/cjcx/202506134566575.html" target="_blank">https://www.dongao.com/cma/cjcx/202506134566575.html</a></td>
+                    <td>www.dongao.com/cma/cjcx</td>
+                    <td><span class="duplicate-rate">25.00%</span></td>
+                    <td>1 / 4</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：zhangfan2025-06-13  10:39:59</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 4</p>
+                            <p><strong>重复评分:</strong> 75.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年7月CMA美国注册管理会计师考试查分时间及流程什么样？7月cma考试查分时间预计为9月初至9月中旬。流程为登录IMA中国官网，点击“我的课程和成绩/CPE学分”...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506124565195.html" target="_blank">https://www.dongao.com/cjks/cf/202506124565195.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：刘雪晶2025-06-12  09:56:17</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '初级会计专业技术资格证书并没有设定有效期限，也就是说，一旦获得，该证书将永久有效。只要您成功通过会计专业技术初级资格考试，就可以获得由人事部统一印制，并由人事部、财政部共...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/bm/202506124565205.html" target="_blank">https://www.dongao.com/cjks/bm/202506124565205.html</a></td>
+                    <td>www.dongao.com/cjks/bm</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：刘雪晶2025-06-12  09:53:55</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年初级会计考后审核地区都有哪些？目前，已知需要进行初级会计师考后审核的地区包括福建、甘肃、湖南、湖北以及贵州。鉴于各地政策的多样性，建议考生们务必密切关注各自所在...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506114563301.html" target="_blank">https://www.dongao.com/cjks/cf/202506114563301.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">33.33%</span></td>
+                    <td>1 / 3</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：刘雪晶2025-06-11  09:29:07</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 66.67</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年初级会计成绩查询时间为6月27日。在此之前，相关部门会开展详尽的数据审核与验证流程，以保障所有考生成绩的精确性。待成绩最终核实无误后，将通过“全国会计人员统一服...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506104566080.html" target="_blank">https://www.dongao.com/cjks/cf/202506104566080.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">75.00%</span></td>
+                    <td>6 / 8</td>
+                    <td><span class="quality-badge quality-poor">极差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张梦2025-06-10  17:02:56</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-poor">极差</span></p>
+                            <p><strong>段落总数:</strong> 8</p>
+                            <p><strong>重复评分:</strong> 25.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '1. 打开“全国会计人员统一服务管理平台”，点击“会计专业技术资格考试”进入“成绩查询”（或点击“考试服务”下的“成绩查询”）。...', 'similar_to': '...<br><p>2. {'paragraph': '1. 打开“全国会计人员统一服务管理平台”，点击“会计专业技术资格考试”进入“成绩查询”（或点击“考试服务”下的“成绩查询”）。...', 'similar_to': '...<br><p>3. {'paragraph': '2. 输入证件号码或手机号码、密码及验证码，登录“全国会计人员统一服务管理平台”。...', 'similar_to': 'https://www.dongao.com/...<br><p>4. {'paragraph': '2. 输入证件号码或手机号码、密码及验证码，登录“全国会计人员统一服务管理平台”。...', 'similar_to': 'https://www.dongao.com/...<br><p>5. {'paragraph': '3. 选择报考年份、考试级别及报考省份，查询初级会计考试成绩。...', 'similar_to': 'https://www.dongao.com/cjks/cf/20......</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506104566033.html" target="_blank">https://www.dongao.com/cjks/cf/202506104566033.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">42.86%</span></td>
+                    <td>3 / 7</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张梦2025-06-10  15:59:34</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 7</p>
+                            <p><strong>重复评分:</strong> 57.14</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....<br><p>2. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....<br><p>3. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和电子邮箱。.....</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506094565617.html" target="_blank">https://www.dongao.com/cjks/cf/202506094565617.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">57.14%</span></td>
+                    <td>4 / 7</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张丽娜2025-06-09  16:03:50</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 7</p>
+                            <p><strong>重复评分:</strong> 42.86</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '【Step1】打开“全国会计人员统一服务管理平台”，点击“会计专业技术资格考试”进入“成绩查询”（或点击“考试服务”下的“成绩查询”）。...', 'similar_to...<br><p>2. {'paragraph': '【Step2】输入证件号码或手机号码、密码及验证码，完成平台登录。...', 'similar_to': 'https://www.dongao.com/cjks/cf/...<br><p>3. {'paragraph': '成绩查询入口开通后，会有大量考生进入查询，形成一个流量高峰，部分考生在登录查询的时候可能会出现系统卡顿的现象，建议考生选择一个适宜的时间进行查询，避开访问高峰。...',...<br><p>4. {'paragraph': '成绩查询入口开通后，会有大量考生进入查询，形成一个流量高峰，部分考生在登录查询的时候可能会出现系统卡顿的现象，建议考生选择一个适宜的时间进行查询，避开访问高峰。...',...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/bm/202506104563289.html" target="_blank">https://www.dongao.com/cjks/bm/202506104563289.html</a></td>
+                    <td>www.dongao.com/cjks/bm</td>
+                    <td><span class="duplicate-rate">50.00%</span></td>
+                    <td>1 / 2</td>
+                    <td><span class="quality-badge quality-poor">极差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：刘雪晶2025-06-10  09:48:44</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-poor">极差</span></p>
+                            <p><strong>段落总数:</strong> 2</p>
+                            <p><strong>重复评分:</strong> 50.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年初级会计职称考后资格审核地区有哪些？目前，已经明确的是，2025年初级会计师考试后需要进行资格审核的地区有福建、甘肃、湖南、湖北和贵州。这些地区将对通过考试的考...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506094565628.html" target="_blank">https://www.dongao.com/cjks/cf/202506094565628.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">66.67%</span></td>
+                    <td>2 / 3</td>
+                    <td><span class="quality-badge quality-poor">极差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张梦2025-06-09  16:40:01</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-poor">极差</span></p>
+                            <p><strong>段落总数:</strong> 3</p>
+                            <p><strong>重复评分:</strong> 33.33</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '不直接出成绩。2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和...<br><p>2. {'paragraph': '不直接出成绩。2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台下发初级会计资格考试成绩并对外公布。各省级考试管理机构同时公布本地区考试成绩、咨询电话和...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/cf/202506094565643.html" target="_blank">https://www.dongao.com/cjks/cf/202506094565643.html</a></td>
+                    <td>www.dongao.com/cjks/cf</td>
+                    <td><span class="duplicate-rate">25.00%</span></td>
+                    <td>1 / 4</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张梦2025-06-09  17:05:33</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 4</p>
+                            <p><strong>重复评分:</strong> 75.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2025年6月27日，完成数据核验后，在全国会计人员统一服务管理平台（网址：https://ausm.mof.gov.cn/index/）下发初级会计资格考试成绩并对外公...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/cjks/bm/202506094565490.html" target="_blank">https://www.dongao.com/cjks/bm/202506094565490.html</a></td>
+                    <td>www.dongao.com/cjks/bm</td>
+                    <td><span class="duplicate-rate">50.00%</span></td>
+                    <td>2 / 4</td>
+                    <td><span class="quality-badge quality-fair">差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：张丽娜2025-06-09  14:35:27</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-fair">差</span></p>
+                            <p><strong>段落总数:</strong> 4</p>
+                            <p><strong>重复评分:</strong> 50.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '单项选择题：每小题备选答案中，只有一个符合题意的正确答案。错选、不选均不得分。...', 'similar_to': 'https://www.dongao.com/cj...<br><p>2. {'paragraph': '多项选择题：每小题备选答案中，有两个或两个以上符合题意的正确答案。请至少选择两个答案，全部选对得满分，少选得相应分值，多选、错选、不选均不得分。...', 'simila...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/gaoji/baoming/202506114566474.html" target="_blank">https://www.dongao.com/gaoji/baoming/202506114566474.html</a></td>
+                    <td>www.dongao.com/gaoji/baoming</td>
+                    <td><span class="duplicate-rate">100.00%</span></td>
+                    <td>10 / 10</td>
+                    <td><span class="quality-badge quality-poor">极差</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：韩艺2025-06-11  16:12:20</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-poor">极差</span></p>
+                            <p><strong>段落总数:</strong> 10</p>
+                            <p><strong>重复评分:</strong> 0.00</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '2026年高级会计师考试报名条件及要求暂未公布，考生可以参考2025年的相关内容。...', 'similar_to': 'https://www.dongao.com/...<br><p>2. {'paragraph': '2026年高级会计师考试报名条件及要求暂未公布，考生可以参考2025年的相关内容。...', 'similar_to': 'https://www.dongao.com/...<br><p>3. {'paragraph': '1.遵守《中华人民共和国会计法》和国家统一的会计制度等法律法规。...', 'similar_to': 'https://www.dongao.com/gaoji/bao...<br><p>4. {'paragraph': '（二）报名参加高级会计师考试的人员，除具备基本条件外，还应具备下列条件之一：...', 'similar_to': 'https://www.dongao.com/gao...<br><p>5. {'paragraph': '1.具备大学专科学历，取得会计师职称后，从事与会计师职责相关工作满10年。...', 'similar_to': 'https://www.dongao.com/gaoj......</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="high-duplicate">
+                    <td class="url-cell"><a href="https://www.dongao.com/gaoji/baoming/202506114566452.html" target="_blank">https://www.dongao.com/gaoji/baoming/202506114566452.html</a></td>
+                    <td>www.dongao.com/gaoji/baoming</td>
+                    <td><span class="duplicate-rate">18.18%</span></td>
+                    <td>2 / 11</td>
+                    <td><span class="quality-badge quality-good">良</span></td>
+                    <td>
+                        <span class="collapsible" onclick="toggleDetails(this)">查看详情</span>
+                        <div class="detail-content">
+                            <p><strong>发布日期:</strong> 来源：东奥会计在线责编：韩艺2025-06-11  15:41:57</p>
+                            <p><strong>质量等级:</strong> <span class="quality-badge quality-good">良</span></p>
+                            <p><strong>段落总数:</strong> 11</p>
+                            <p><strong>重复评分:</strong> 81.82</p>
+                            
+                            <div class="detail-section">
+                                <h4>重复段落详情</h4>
+                                <div class='duplicate-detail'><p>1. {'paragraph': '高级会计师报名条件和要求详情是什么？2026年高级会计师考试报名条件的相关信息暂未公布，大家可以先参考2025年报名条件。根据往年发布的条件来看，对考生学历及工作经验均有...<br><p>2. {'paragraph': '1.具备大学专科学历，取得会计师职称后，从事与会计师职责相关工作满10年。...', 'similar_to': 'https://www.dongao.com/gaoj...</div>
+            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                </tbody>
+            </table>
+            <div id="pagination" class="pagination"></div>
+            <div id="pagination-info" class="pagination-info"></div>
+            <div id="loader" class="loader"></div>
+        </div>
+        
+        <footer>
+            <p>报告生成于 2025-12-25 16:38:57 | SEO内容质量综合分析工具</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 全局变量
+        const ITEMS_PER_PAGE = 25;
+        let currentPage = 1;
+        
+        // 表格排序功能
+        function sortTable(n, direction = null) {
+            showLoader();
+            
+            setTimeout(() => {
+                const table = document.getElementById('urlTable');
+                let switching = true;
+                let dir = direction || "asc"; 
+                let switchcount = 0;
+                let rows, shouldSwitch, x, y, i;
+                
+                while (switching) {
+                    switching = false;
+                    rows = table.rows;
+                    
+                    for (i = 1; i < (rows.length - 1); i++) {
+                        shouldSwitch = false;
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        
+                        // 根据列内容类型确定比较方式
+                        let xContent, yContent;
+                        if (n === 2) { // 重复率列
+                            xContent = parseFloat(x.textContent.replace('%', ''));
+                            yContent = parseFloat(y.textContent.replace('%', ''));
+                        } else if (n === 3) { // 重复段落/总段落列
+                            const xParts = x.textContent.split('/');
+                            const yParts = y.textContent.split('/');
+                            const xRatio = parseInt(xParts[0].trim()) / parseInt(xParts[1].trim());
+                            const yRatio = parseInt(yParts[0].trim()) / parseInt(yParts[1].trim());
+                            xContent = xRatio;
+                            yContent = yRatio;
+                        } else if (n === 4) { // 质量等级列
+                            const qualityMap = {'优': 4, '良': 3, '差': 2, '极差': 1};
+                            xContent = qualityMap[x.textContent.trim()] || 0;
+                            yContent = qualityMap[y.textContent.trim()] || 0;
+                        } else { // 文本列
+                            xContent = x.textContent.toLowerCase();
+                            yContent = y.textContent.toLowerCase();
+                        }
+                        
+                        if (dir == "asc") {
+                            if (xContent > yContent) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (xContent < yContent) {
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (shouldSwitch) {
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                        switchcount++;
+                    } else {
+                        if (switchcount == 0 && dir == "asc" && direction === null) {
+                            dir = "desc";
+                            switching = true;
+                        }
+                    }
+                }
+                
+                // 重置分页并显示第一页
+                resetPagination();
+                hideLoader();
+            }, 10);
+        }
+        
+        // 分页功能
+        function showPage(page) {
+            showLoader();
+            
+            setTimeout(() => {
+                const table = document.getElementById('urlTable');
+                const rows = table.querySelectorAll('tbody tr:not(.filtered-out)');
+                const totalRows = rows.length;
+                const totalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+                
+                if (page < 1) page = 1;
+                if (page > totalPages) page = totalPages;
+                
+                currentPage = page;
+                
+                // 隐藏所有行
+                rows.forEach(row => {
+                    row.style.display = 'none';
+                });
+                
+                // 显示当前页的行
+                const startIndex = (page - 1) * ITEMS_PER_PAGE;
+                const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalRows);
+                
+                for (let i = startIndex; i < endIndex; i++) {
+                    if (rows[i]) {
+                        rows[i].style.display = '';
+                    }
+                }
+                
+                // 更新分页信息
+                updatePaginationControls(totalRows, page, totalPages);
+                hideLoader();
+            }, 10);
+        }
+        
+        // 更新分页控件
+        function updatePaginationControls(totalRows, currentPage, totalPages) {
+            const paginationDiv = document.getElementById('pagination');
+            const paginationInfo = document.getElementById('pagination-info');
+            
+            paginationDiv.innerHTML = '';
+            
+            // 如果只有一页则不显示分页
+            if (totalPages <= 1) {
+                paginationDiv.style.display = 'none';
+                paginationInfo.textContent = `显示 ${totalRows} 条记录`;
+                return;
+            }
+            
+            paginationDiv.style.display = 'flex';
+            
+            // 添加"上一页"按钮
+            const prevPageLink = document.createElement('a');
+            prevPageLink.href = 'javascript:void(0)';
+            prevPageLink.textContent = '上一页';
+            if (currentPage === 1) {
+                prevPageLink.style.opacity = '0.5';
+                prevPageLink.style.pointerEvents = 'none';
+            } else {
+                prevPageLink.onclick = () => showPage(currentPage - 1);
+            }
+            paginationDiv.appendChild(prevPageLink);
+            
+            // 确定要显示的页码范围
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            // 添加第一页
+            if (startPage > 1) {
+                const firstPageLink = document.createElement('a');
+                firstPageLink.href = 'javascript:void(0)';
+                firstPageLink.textContent = '1';
+                firstPageLink.onclick = () => showPage(1);
+                paginationDiv.appendChild(firstPageLink);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('a');
+                    ellipsis.href = 'javascript:void(0)';
+                    ellipsis.textContent = '...';
+                    ellipsis.style.pointerEvents = 'none';
+                    paginationDiv.appendChild(ellipsis);
+                }
+            }
+            
+            // 添加页码按钮
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.href = 'javascript:void(0)';
+                pageLink.textContent = i;
+                if (i === currentPage) {
+                    pageLink.className = 'active';
+                } else {
+                    pageLink.onclick = () => showPage(i);
+                }
+                paginationDiv.appendChild(pageLink);
+            }
+            
+            // 添加最后一页
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('a');
+                    ellipsis.href = 'javascript:void(0)';
+                    ellipsis.textContent = '...';
+                    ellipsis.style.pointerEvents = 'none';
+                    paginationDiv.appendChild(ellipsis);
+                }
+                
+                const lastPageLink = document.createElement('a');
+                lastPageLink.href = 'javascript:void(0)';
+                lastPageLink.textContent = totalPages;
+                lastPageLink.onclick = () => showPage(totalPages);
+                paginationDiv.appendChild(lastPageLink);
+            }
+            
+            // 添加"下一页"按钮
+            const nextPageLink = document.createElement('a');
+            nextPageLink.href = 'javascript:void(0)';
+            nextPageLink.textContent = '下一页';
+            if (currentPage === totalPages) {
+                nextPageLink.style.opacity = '0.5';
+                nextPageLink.style.pointerEvents = 'none';
+            } else {
+                nextPageLink.onclick = () => showPage(currentPage + 1);
+            }
+            paginationDiv.appendChild(nextPageLink);
+            
+            // 更新页码信息
+            const startRecord = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const endRecord = Math.min(currentPage * ITEMS_PER_PAGE, totalRows);
+            paginationInfo.textContent = `显示 ${startRecord}-${endRecord} 条，共 ${totalRows} 条记录`;
+        }
+        
+        // 重置分页器并显示第一页
+        function resetPagination() {
+            const table = document.getElementById('urlTable');
+            if (!table) return;
+            
+            const rows = table.querySelectorAll('tbody tr:not(.filtered-out)');
+            const totalRows = rows.length;
+            const totalPages = Math.ceil(totalRows / ITEMS_PER_PAGE);
+            
+            showPage(1);
+        }
+        
+        // 显示加载中
+        function showLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'block';
+        }
+        
+        // 隐藏加载中
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'none';
+        }
+        
+        // 搜索筛选功能
+        function filterTable() {
+            showLoader();
+            
+            setTimeout(() => {
+                const input = document.getElementById('searchInput');
+                const filter = input.value.toLowerCase();
+                const table = document.getElementById('urlTable');
+                const rows = table.getElementsByTagName("tr");
+                
+                // 用于标记行是否显示
+                for (let i = 1; i < rows.length; i++) {
+                    const td = rows[i].getElementsByTagName("td")[0]; // URL列
+                    if (td) {
+                        const txtValue = td.textContent || td.innerText;
+                        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                            rows[i].classList.remove('filtered-out');
+                        } else {
+                            rows[i].classList.add('filtered-out');
+                        }
+                    }
+                }
+                
+                // 重新计算和显示分页
+                resetPagination();
+                hideLoader();
+            }, 10);
+        }
+        
+        // 为搜索框绑定事件
+        document.getElementById('searchInput').addEventListener('keyup', filterTable);
+        
+        // 切换详情显示
+        function toggleDetails(element) {
+            const detailContent = element.nextElementSibling;
+            if (detailContent.style.display === "block") {
+                detailContent.style.display = "none";
+                element.textContent = "查看详情";
+            } else {
+                detailContent.style.display = "block";
+                element.textContent = "隐藏详情";
+            }
+        }
+        
+        // 页面加载完成后，设置默认排序并初始化分页
+        window.addEventListener('DOMContentLoaded', function() {
+            // 默认按重复率降序排序
+            sortTable(2, 'desc');
+        });
+    </script>
+</body>
+</html>
+    

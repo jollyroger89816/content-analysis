@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO内容质量目录统计</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #2c3e50;
+        }
+        .stats-card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .stats-card h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        .excellent { background-color: #d4edda; border-left: 3px solid #28a745; }
+        .good { background-color: #d1ecf1; border-left: 3px solid #17a2b8; }
+        .fair { background-color: #fff3cd; border-left: 3px solid #ffc107; }
+        .poor { background-color: #f8d7da; border-left: 3px solid #dc3545; }
+        .high-duplicate { background-color: #fbf0ef; border-left: 3px solid #e74c3c; }
+        .has-implicit { background-color: #f0f5fb; border-left: 3px solid #3498db; }
+        .both-issues { background-color: #f5eef8; border-left: 3px solid #9b59b6; }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+        .progress-excellent { background-color: #28a745; }
+        .progress-good { background-color: #17a2b8; }
+        .progress-fair { background-color: #ffc107; color: #333; }
+        .progress-poor { background-color: #dc3545; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .summary-box {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #2c3e50;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-link:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 低质量目录汇总样式 */
+        .low-quality-summary {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 5px solid #e74c3c;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .low-quality-summary h2 {
+            color: #e74c3c;
+            margin-top: 0;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(231, 76, 60, 0.2);
+            padding-bottom: 10px;
+        }
+        .low-quality-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .low-quality-table th {
+            background: linear-gradient(to bottom, #fadbd8, #f5b7b1);
+            color: #c0392b;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 1.05em;
+            border-bottom: 2px solid #e74c3c;
+        }
+        .low-quality-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        .low-quality-table tr:last-child td {
+            border-bottom: none;
+        }
+        .low-quality-table tr:nth-child(even) {
+            background-color: rgba(248, 249, 250, 0.7);
+        }
+        .low-quality-table tr:hover {
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+        .summary-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: #555;
+        }
+        .improvement-tips {
+            background-color: #eaf2f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid #3498db;
+        }
+        .improvement-tips h3 {
+            margin-top: 0;
+            color: #3498db;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+        .improvement-tips ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .improvement-tips li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .improvement-tips strong {
+            color: #2980b9;
+        }
+        
+        /* 优化目标样式 */
+        .summary-optimization-targets {
+            background: linear-gradient(to right, #ebf5fb, #d6eaf8);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.15);
+        }
+        
+        .summary-optimization-targets h3 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(52, 152, 219, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .summary-optimization-targets p {
+            font-size: 1.1em;
+            margin: 15px 0;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+        }
+        
+        .optimization-number {
+            font-weight: 700;
+            font-size: 1.3em;
+            color: #e74c3c;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin: 0 5px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        /* 表格中的优化目标列样式 */
+        .optimization-target-cell {
+            background-color: rgba(235, 245, 251, 0.4);
+            width: 180px;
+        }
+        
+        .optimization-target-cell p {
+            margin: 8px 0;
+            line-height: 1.4;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .optimization-target-cell p:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .optimization-target-cell strong {
+            color: #2980b9;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .need-optimize {
+            color: #e74c3c;
+            font-weight: 700;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            min-width: 25px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* 质量分布信息 */
+        .quality-distribution {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .quality-bar-container {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .quality-bar {
+            height: 100%;
+            float: left;
+            transition: width 0.5s;
+        }
+        
+        .good-quality-bar {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+        
+        .poor-quality-bar {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        .quality-label {
+            width: 80px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .low-quality-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .optimization-target-cell {
+                min-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SEO内容质量目录统计</h1>
+            <p>生成时间: 2025-12-25 16:38:57</p>
+            <p>总URLs数量: 92</p>
+            <a href="index.html" class="back-link">返回首页</a>
+        </div>
+        
+        <h2>目录质量统计</h2>
+        <table>
+            <tr>
+                <th>目录</th>
+                <th>总URL数</th>
+                <th>优质内容</th>
+                <th>良好内容</th>
+                <th>较差内容</th>
+                <th>极差内容</th>
+                <th>重复内容</th>
+                <th>暗示性语言</th>
+                <th>双重问题</th>
+                <th>平均重复率</th>
+                <th>平均暗示分</th>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cjks/cf</td>
+                <td>44</td>
+                <td>19 (43.2%)</td>
+                <td>17 (38.6%)</td>
+                <td>5 (11.4%)</td>
+                <td>3 (6.8%)</td>
+                <td>9 (20.5%)</td>
+                <td>24 (54.5%)</td>
+                <td>6 (13.6%)</td>
+                <td>10.46%</td>
+                <td>3.95</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cjks/bm</td>
+                <td>20</td>
+                <td>11 (55.0%)</td>
+                <td>6 (30.0%)</td>
+                <td>2 (10.0%)</td>
+                <td>1 (5.0%)</td>
+                <td>3 (15.0%)</td>
+                <td>13 (65.0%)</td>
+                <td>2 (10.0%)</td>
+                <td>6.88%</td>
+                <td>4.1</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/acca/bm</td>
+                <td>8</td>
+                <td>5 (62.5%)</td>
+                <td>2 (25.0%)</td>
+                <td>1 (12.5%)</td>
+                <td>0 (0.0%)</td>
+                <td>3 (37.5%)</td>
+                <td>2 (25.0%)</td>
+                <td>1 (12.5%)</td>
+                <td>12.5%</td>
+                <td>0.75</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cma/cjcx</td>
+                <td>8</td>
+                <td>4 (50.0%)</td>
+                <td>1 (12.5%)</td>
+                <td>3 (37.5%)</td>
+                <td>0 (0.0%)</td>
+                <td>4 (50.0%)</td>
+                <td>5 (62.5%)</td>
+                <td>3 (37.5%)</td>
+                <td>15.62%</td>
+                <td>1.88</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cjks/hgz</td>
+                <td>4</td>
+                <td>2 (50.0%)</td>
+                <td>2 (50.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>2 (50.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0.0%</td>
+                <td>4.25</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/gaoji/baoming</td>
+                <td>3</td>
+                <td>1 (33.3%)</td>
+                <td>1 (33.3%)</td>
+                <td>0 (0.0%)</td>
+                <td>1 (33.3%)</td>
+                <td>2 (66.7%)</td>
+                <td>2 (66.7%)</td>
+                <td>1 (33.3%)</td>
+                <td>39.39%</td>
+                <td>2.0</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/acca/cjcx</td>
+                <td>2</td>
+                <td>1 (50.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>1 (50.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>1 (50.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>25.0%</td>
+                <td>0.0</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cma/bmsj</td>
+                <td>1</td>
+                <td>0 (0.0%)</td>
+                <td>1 (100.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>1 (100.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>33.33%</td>
+                <td>0.0</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cma/bmlc</td>
+                <td>1</td>
+                <td>0 (0.0%)</td>
+                <td>1 (100.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>1 (100.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>33.33%</td>
+                <td>0.0</td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/gaoji/chengjichaxun</td>
+                <td>1</td>
+                <td>1 (100.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>1 (100.0%)</td>
+                <td>0 (0.0%)</td>
+                <td>0.0%</td>
+                <td>3.0</td>
+            </tr>
+        </table>
+        
+        <h2>目录详细分析</h2>
+        <div class="stats-card">
+            <h2>www.dongao.com/cjks/cf</h2>
+            <p>包含 44 个URL</p>
+            
+            <h3>质量分布</h3>
+            <div class="progress-container">
+                <div class="progress-bar progress-excellent" style="width: 43.2%;">43.2%</div>
+            </div>
+            <p>优质内容: 19 (43.2%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-good" style="width: 38.6%;">38.6%</div>
+            </div>
+            <p>良好内容: 17 (38.6%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-fair" style="width: 11.4%;">11.4%</div>
+            </div>
+            <p>较差内容: 5 (11.4%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-poor" style="width: 6.8%;">6.8%</div>
+            </div>
+            <p>极差内容: 3 (6.8%)</p>
+            
+            <h3>问题分析</h3>
+            <div class="stats-grid">
+                <div class="stat-item high-duplicate">
+                    <div class="stat-value">20.5%</div>
+                    <div class="stat-label">重复内容</div>
+                    <div>9 个URL</div>
+                </div>
+                
+                <div class="stat-item has-implicit">
+                    <div class="stat-value">54.5%</div>
+                    <div class="stat-label">暗示性语言</div>
+                    <div>24 个URL</div>
+                </div>
+                
+                <div class="stat-item both-issues">
+                    <div class="stat-value">13.6%</div>
+                    <div class="stat-label">双重问题</div>
+                    <div>6 个URL</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">10.46%</div>
+                    <div class="stat-label">平均重复率</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">3.95</div>
+                    <div class="stat-label">平均暗示分</div>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card">
+            <h2>www.dongao.com/cjks/bm</h2>
+            <p>包含 20 个URL</p>
+            
+            <h3>质量分布</h3>
+            <div class="progress-container">
+                <div class="progress-bar progress-excellent" style="width: 55.0%;">55.0%</div>
+            </div>
+            <p>优质内容: 11 (55.0%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-good" style="width: 30.0%;">30.0%</div>
+            </div>
+            <p>良好内容: 6 (30.0%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-fair" style="width: 10.0%;">10.0%</div>
+            </div>
+            <p>较差内容: 2 (10.0%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-poor" style="width: 5.0%;">5.0%</div>
+            </div>
+            <p>极差内容: 1 (5.0%)</p>
+            
+            <h3>问题分析</h3>
+            <div class="stats-grid">
+                <div class="stat-item high-duplicate">
+                    <div class="stat-value">15.0%</div>
+                    <div class="stat-label">重复内容</div>
+                    <div>3 个URL</div>
+                </div>
+                
+                <div class="stat-item has-implicit">
+                    <div class="stat-value">65.0%</div>
+                    <div class="stat-label">暗示性语言</div>
+                    <div>13 个URL</div>
+                </div>
+                
+                <div class="stat-item both-issues">
+                    <div class="stat-value">10.0%</div>
+                    <div class="stat-label">双重问题</div>
+                    <div>2 个URL</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">6.88%</div>
+                    <div class="stat-label">平均重复率</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">4.1</div>
+                    <div class="stat-label">平均暗示分</div>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card">
+            <h2>www.dongao.com/acca/bm</h2>
+            <p>包含 8 个URL</p>
+            
+            <h3>质量分布</h3>
+            <div class="progress-container">
+                <div class="progress-bar progress-excellent" style="width: 62.5%;">62.5%</div>
+            </div>
+            <p>优质内容: 5 (62.5%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-good" style="width: 25.0%;">25.0%</div>
+            </div>
+            <p>良好内容: 2 (25.0%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-fair" style="width: 12.5%;">12.5%</div>
+            </div>
+            <p>较差内容: 1 (12.5%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-poor" style="width: 0.0%;">0.0%</div>
+            </div>
+            <p>极差内容: 0 (0.0%)</p>
+            
+            <h3>问题分析</h3>
+            <div class="stats-grid">
+                <div class="stat-item high-duplicate">
+                    <div class="stat-value">37.5%</div>
+                    <div class="stat-label">重复内容</div>
+                    <div>3 个URL</div>
+                </div>
+                
+                <div class="stat-item has-implicit">
+                    <div class="stat-value">25.0%</div>
+                    <div class="stat-label">暗示性语言</div>
+                    <div>2 个URL</div>
+                </div>
+                
+                <div class="stat-item both-issues">
+                    <div class="stat-value">12.5%</div>
+                    <div class="stat-label">双重问题</div>
+                    <div>1 个URL</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">12.5%</div>
+                    <div class="stat-label">平均重复率</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">0.75</div>
+                    <div class="stat-label">平均暗示分</div>
+                </div>
+            </div>
+        </div>
+        <div class="stats-card">
+            <h2>www.dongao.com/cma/cjcx</h2>
+            <p>包含 8 个URL</p>
+            
+            <h3>质量分布</h3>
+            <div class="progress-container">
+                <div class="progress-bar progress-excellent" style="width: 50.0%;">50.0%</div>
+            </div>
+            <p>优质内容: 4 (50.0%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-good" style="width: 12.5%;">12.5%</div>
+            </div>
+            <p>良好内容: 1 (12.5%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-fair" style="width: 37.5%;">37.5%</div>
+            </div>
+            <p>较差内容: 3 (37.5%)</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar progress-poor" style="width: 0.0%;">0.0%</div>
+            </div>
+            <p>极差内容: 0 (0.0%)</p>
+            
+            <h3>问题分析</h3>
+            <div class="stats-grid">
+                <div class="stat-item high-duplicate">
+                    <div class="stat-value">50.0%</div>
+                    <div class="stat-label">重复内容</div>
+                    <div>4 个URL</div>
+                </div>
+                
+                <div class="stat-item has-implicit">
+                    <div class="stat-value">62.5%</div>
+                    <div class="stat-label">暗示性语言</div>
+                    <div>5 个URL</div>
+                </div>
+                
+                <div class="stat-item both-issues">
+                    <div class="stat-value">37.5%</div>
+                    <div class="stat-label">双重问题</div>
+                    <div>3 个URL</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">15.62%</div>
+                    <div class="stat-label">平均重复率</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value">1.88</div>
+                    <div class="stat-label">平均暗示分</div>
+                </div>
+            </div>
+        </div>
+    <a href="index.html" class="back-link">返回首页</a>
+</div>
+</body>
+</html>

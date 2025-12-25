@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO内容质量分析报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header .meta {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px 40px;
+            background: #f8f9fa;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .summary-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .summary-card .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .quality-bar {
+            display: flex;
+            height: 40px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .quality-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .excellent { background: #28a745; }
+        .good { background: #17a2b8; }
+        .fair { background: #ffc107; color: #333; }
+        .poor { background: #dc3545; }
+        .url-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+        .url-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .url-card.excellent { border-left-color: #28a745; }
+        .url-card.good { border-left-color: #17a2b8; }
+        .url-card.fair { border-left-color: #ffc107; }
+        .url-card.poor { border-left-color: #dc3545; }
+        .url-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .url-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            flex: 1;
+            word-break: break-all;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: white;
+            margin-left: 10px;
+        }
+        .badge-excellent { background: #28a745; }
+        .badge-good { background: #17a2b8; }
+        .badge-fair { background: #ffc107; color: #333; }
+        .badge-poor { background: #dc3545; }
+        .score-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .recommendations {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+        .recommendations h4 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+        .recommendations li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .recommendations li:before {
+            content: "•";
+            position: absolute;
+            left: 5px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 SEO内容质量分析报告</h1>
+            <div class="meta">
+                <p>生成时间: 2025年12月25日 11:50:27</p>
+                <p>分析URL数量: 6 个 | 成功分析: 6 个</p>
+            </div>
+        </div>
+
+        <div class="summary">
+            <div class="summary-card">
+                <div class="number">6</div>
+                <div class="label">分析总数</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">6</div>
+                <div class="label">成功分析</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">100.0</div>
+                <div class="label">平均SEO评分</div>
+            </div>
+            <div class="summary-card">
+                <div class="number">6</div>
+                <div class="label">优秀页面</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">📈 质量等级分布</h2>
+                <div class="quality-bar">
+
+                    <div class="quality-segment excellent" style="width: 100.0%;">优 6</div>
+                    <div class="quality-segment good" style="width: 0.0%;">良 0</div>
+                    <div class="quality-segment fair" style="width: 0.0%;">差 0</div>
+                    <div class="quality-segment poor" style="width: 0.0%;">极差 0</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">优秀页面 (优) - 6个</h2>
+
+                <div class="url-card excellent">
+                    <div class="url-header">
+                        <div class="url-title"><a href="http://example.com" target="_blank" style="color: #333;">http://example.com</a></div>
+                        <div class="score-display">100.0</div>
+                    </div>
+                    <div class="recommendations">
+                        <h4>💡 优化建议:</h4>
+                        <ul>
+<li>✅ 页面质量优秀，继续保持</li><li>✅ 未检测到暗示性语言，表述明确</li><li>✅ 内容原创性良好</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="url-card excellent">
+                    <div class="url-header">
+                        <div class="url-title"><a href="http://example.org" target="_blank" style="color: #333;">http://example.org</a></div>
+                        <div class="score-display">100.0</div>
+                    </div>
+                    <div class="recommendations">
+                        <h4>💡 优化建议:</h4>
+                        <ul>
+<li>✅ 页面质量优秀，继续保持</li><li>✅ 未检测到暗示性语言，表述明确</li><li>✅ 内容原创性良好</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="url-card excellent">
+                    <div class="url-header">
+                        <div class="url-title"><a href="http://example.net" target="_blank" style="color: #333;">http://example.net</a></div>
+                        <div class="score-display">100.0</div>
+                    </div>
+                    <div class="recommendations">
+                        <h4>💡 优化建议:</h4>
+                        <ul>
+<li>✅ 页面质量优秀，继续保持</li><li>✅ 未检测到暗示性语言，表述明确</li><li>✅ 内容原创性良好</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="url-card excellent">
+                    <div class="url-header">
+                        <div class="url-title"><a href="https://httpbin.org/html" target="_blank" style="color: #333;">https://httpbin.org/html</a></div>
+                        <div class="score-display">100.0</div>
+                    </div>
+                    <div class="recommendations">
+                        <h4>💡 优化建议:</h4>
+                        <ul>
+<li>✅ 页面质量优秀，继续保持</li><li>✅ 未检测到暗示性语言，表述明确</li><li>✅ 内容原创性良好</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="url-card excellent">
+                    <div class="url-header">
+                        <div class="url-title"><a href="https://www.python.org/" target="_blank" style="color: #333;">https://www.python.org/</a></div>
+                        <div class="score-display">100.0</div>
+                    </div>
+                    <div class="recommendations">
+                        <h4>💡 优化建议:</h4>
+                        <ul>
+<li>✅ 页面质量优秀，继续保持</li><li>✅ 未检测到暗示性语言，表述明确</li><li>✅ 内容原创性良好</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="url-card excellent">
+                    <div class="url-header">
+                        <div class="url-title"><a href="https://github.com" target="_blank" style="color: #333;">https://github.com</a></div>
+                        <div class="score-display">100.0</div>
+                    </div>
+                    <div class="recommendations">
+                        <h4>💡 优化建议:</h4>
+                        <ul>
+<li>✅ 页面质量优秀，继续保持</li><li>✅ 未检测到暗示性语言，表述明确</li><li>✅ 内容原创性良好</li>
+                        </ul>
+                    </div>
+                </div>
+</div>
+            <div class="section">
+                <h2 class="section-title">📋 详细分析数据</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>质量等级</th>
+                            <th>SEO评分</th>
+                            <th>暗示程度</th>
+                            <th>重复率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td><a href="http://example.com" target="_blank" style="color: #667eea;">http://example.com...</a></td>
+                            <td><span class="badge badge-excellent">优</span></td>
+                            <td>100.0</td>
+                            <td>无</td>
+                            <td>0.0%</td>
+                        </tr>
+
+                        <tr>
+                            <td><a href="http://example.org" target="_blank" style="color: #667eea;">http://example.org...</a></td>
+                            <td><span class="badge badge-excellent">优</span></td>
+                            <td>100.0</td>
+                            <td>无</td>
+                            <td>0.0%</td>
+                        </tr>
+
+                        <tr>
+                            <td><a href="http://example.net" target="_blank" style="color: #667eea;">http://example.net...</a></td>
+                            <td><span class="badge badge-excellent">优</span></td>
+                            <td>100.0</td>
+                            <td>无</td>
+                            <td>0.0%</td>
+                        </tr>
+
+                        <tr>
+                            <td><a href="https://httpbin.org/html" target="_blank" style="color: #667eea;">https://httpbin.org/html...</a></td>
+                            <td><span class="badge badge-excellent">优</span></td>
+                            <td>100.0</td>
+                            <td>无</td>
+                            <td>0.0%</td>
+                        </tr>
+
+                        <tr>
+                            <td><a href="https://www.python.org/" target="_blank" style="color: #667eea;">https://www.python.org/...</a></td>
+                            <td><span class="badge badge-excellent">优</span></td>
+                            <td>100.0</td>
+                            <td>无</td>
+                            <td>0.0%</td>
+                        </tr>
+
+                        <tr>
+                            <td><a href="https://github.com" target="_blank" style="color: #667eea;">https://github.com...</a></td>
+                            <td><span class="badge badge-excellent">优</span></td>
+                            <td>100.0</td>
+                            <td>无</td>
+                            <td>0.0%</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>本报告由 统一SEO分析平台 自动生成</p>
+            <p>生成时间: 2025年12月25日 11:50:27</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">© 2024 SEO Analysis Platform</p>
+        </div>
+    </div>
+</body>
+</html>

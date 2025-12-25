@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Reports (输出目录，保留结构但忽略内容)
+reports/comprehensive_report_*/
+reports/temp_analysis/
+
+# 测试文件
+test_urls*.txt
+test_*.py
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# 文档草稿
+*-test-*.md
+*-deployment.md
+*-requirements.md
+-architecture.md
+功能对比清单.md
+CODE_COMPARISON.md
+VALIDATION_REPORT.md
+
+# 项目引用（原项目，很大）
+# 如果需要包含原项目，删除下面的行
+# project_references/
+
+# Node modules (如果有)
+node_modules/

@@ -1,0 +1,952 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>质量分布低的目录 - SEO内容质量报告</title>
+    <style>
+body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #e8f0fe 100%);
+    color: #222;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 16px;
+}
+.header {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(52,152,219,0.08);
+    padding: 36px 36px 24px 36px;
+    margin-bottom: 36px;
+    border-left: 8px solid #e74c3c;
+}
+.header h1 {
+    color: #e74c3c;
+    margin: 0 0 12px 0;
+    font-size: 2.2em;
+    letter-spacing: 1px;
+}
+.header p {
+    color: #888;
+    margin: 0;
+    font-size: 1.1em;
+}
+.back-link {
+    display: inline-block;
+    margin: 24px 0 0 0;
+    padding: 12px 22px;
+    background: linear-gradient(90deg, #3498db 60%, #6dd5fa 100%);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1em;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.back-link:hover {
+    background: linear-gradient(90deg, #217dbb 60%, #3498db 100%);
+    box-shadow: 0 4px 16px rgba(52,152,219,0.16);
+}
+.low-quality-summary {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(52,152,219,0.06);
+    padding: 32px 24px;
+}
+.low-quality-summary h2 {
+    color: #e67e22;
+    margin-top: 0;
+    font-size: 1.5em;
+}
+.summary-text {
+    color: #555;
+    margin-bottom: 18px;
+}
+.low-quality-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 32px;
+    font-size: 1.08em;
+    background: #f9fbfd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 8px rgba(52,152,219,0.04);
+}
+.low-quality-table th, .low-quality-table td {
+    padding: 16px 10px;
+    text-align: left;
+}
+.low-quality-table th {
+    background: #eaf6ff;
+    color: #217dbb;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.low-quality-table tr:nth-child(even) {
+    background: #f4f8fb;
+}
+.low-quality-table tr:hover {
+    background: #e3f2fd;
+    transition: background 0.2s;
+}
+.quality-distribution {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.quality-label {
+    font-size: 0.98em;
+    color: #888;
+}
+.quality-bar-container {
+    flex: 1;
+    height: 16px;
+    background: #e0eafc;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+}
+.quality-bar {
+    height: 100%;
+    transition: width 0.6s cubic-bezier(.4,2,.6,1);
+}
+.poor-quality-bar {
+    background: linear-gradient(90deg, #e74c3c 60%, #f9ca24 100%);
+    border-radius: 8px 0 0 8px;
+}
+.good-quality-bar {
+    background: linear-gradient(90deg, #27ae60 60%, #2ecc71 100%);
+    border-radius: 0 8px 8px 0;
+}
+.optimization-target-cell {
+    background: #fef9e7;
+    border-radius: 8px;
+    font-size: 0.98em;
+}
+.need-optimize {
+    color: #e67e22;
+    font-weight: bold;
+}
+.optimization-number {
+    color: #e74c3c;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.improvement-tips {
+    margin-top: 32px;
+    background: #f8f6f0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(230, 126, 34, 0.06);
+}
+.improvement-tips h3 {
+    color: #e67e22;
+    margin-top: 0;
+}
+.improvement-tips ul {
+    margin: 0;
+    padding-left: 20px;
+}
+.improvement-tips li {
+    margin-bottom: 8px;
+    font-size: 1.05em;
+}
+@media (max-width: 900px) {
+    .container { padding: 16px 2vw; }
+    .header, .low-quality-summary { padding: 18px 6px; }
+    .low-quality-table th, .low-quality-table td { padding: 10px 4px; }
+}
+
+/* 404检查按钮样式 */
+.check-404-btn {
+    display: inline-block;
+    margin: 24px 0 0 24px;
+    padding: 12px 22px;
+    background: linear-gradient(90deg, #e74c3c 60%, #f39c12 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1em;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    cursor: pointer;
+}
+.check-404-btn:hover {
+    background: linear-gradient(90deg, #c0392b 60%, #d35400 100%);
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.16);
+    transform: translateY(-2px);
+}
+.check-404-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.check-404-btn .spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.check-404-btn.loading .spinner {
+    display: inline-block;
+}
+.check-404-btn.loading span {
+    display: none;
+}
+
+/* 404状态样式 */
+.status-404 {
+    color: #e74c3c;
+    font-weight: bold;
+    background: #fde8e8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+.status-ok {
+    color: #27ae60;
+    font-weight: bold;
+    background: #e8f8e8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+.status-checking {
+    color: #f39c12;
+    font-weight: bold;
+    background: #fef5e7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>质量分布低的目录</h1>
+            <p>本页展示所有内容质量分布低于85%的目录，包含主要问题、改进建议及优化目标。</p>
+            <div style="display: flex; align-items: center;">
+                <a href="index.html" class="back-link">返回首页</a>
+                <button id="check404Btn" class="check-404-btn">
+                    <span>一键检查下线</span>
+                </button>
+            </div>
+        </div>
+    <style>
+    .improve-interactive {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        margin-bottom: 4px;
+    }
+    .improve-input {
+        width: 70px;
+        padding: 6px 8px;
+        border: 1.5px solid #b2bec3;
+        border-radius: 6px;
+        font-size: 1em;
+        transition: border 0.2s;
+    }
+    .improve-input:focus {
+        border: 1.5px solid #4a6cf7;
+        outline: none;
+    }
+    .improve-btn {
+        padding: 6px 18px;
+        background: linear-gradient(90deg, #4a6cf7 60%, #6dd5fa 100%);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1em;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(52,152,219,0.08);
+        transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+    .improve-btn:hover {
+        background: linear-gradient(90deg, #217dbb 60%, #3498db 100%);
+        box-shadow: 0 4px 16px rgba(52,152,219,0.16);
+        transform: translateY(-2px) scale(1.04);
+    }
+    .improve-result {
+        margin-left: 0;
+        margin-top: 8px;
+        font-size: 0.98em;
+        min-height: 1.5em;
+        border-radius: 6px;
+        padding: 6px 10px;
+        background: #f8f9fa;
+        color: #217dbb;
+        box-shadow: 0 1px 4px rgba(52,152,219,0.06);
+        word-break: break-all;
+        max-width: 220px;
+    }
+    .improve-result.success {
+        background: #eafaf1;
+        color: #27ae60;
+        font-weight: bold;
+    }
+    .improve-result.warning {
+        background: #fff9e6;
+        color: #e67e22;
+        font-weight: bold;
+    }
+    .improve-result.error {
+        background: #fff0f0;
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    @media (max-width: 900px) {
+        .improve-interactive { flex-direction: column; align-items: flex-start; gap: 4px;}
+        .improve-result { max-width: 100%; }
+    }
+    </style>
+    <div class="low-quality-summary">
+        <h2>质量分布低于85%的目录</h2>
+        <p class="summary-text">以下目录的内容质量分布低于85%，需要重点关注和改进。左侧红色部分表示较差/极差内容比例，右侧绿色部分表示优良内容比例。</p>
+        <table class="low-quality-table">
+            <tr>
+                <th style="width:20%">目录</th>
+                <th style="width:10%">URL总数</th>
+                <th style="width:25%">质量分布</th>
+                <th style="width:15%">重点问题</th>
+                <th style="width:15%">改进建议</th>
+                <th style="width:15%">优化目标</th>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cma/bmsj</td>
+                <td>1</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 100.0%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 0.0%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 0 (0.0%) |
+               良内容: 1 (100.0%) |
+               较差/极差: 0 (0.0%)</p>
+        </td>
+                <td>重复内容比例高(100.0%)</td>
+                <td>减少内容重复度，增加原创内容比例；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">0</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">1</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">1</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='1' 
+                    id='improve_input_0' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(0, 0, 1)">
+                <button class='improve-btn' onclick='calcImprove(0, 0, 1)'>计算</button>
+                <div id='improve_result_0' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cma/bmlc</td>
+                <td>1</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 100.0%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 0.0%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 0 (0.0%) |
+               良内容: 1 (100.0%) |
+               较差/极差: 0 (0.0%)</p>
+        </td>
+                <td>重复内容比例高(100.0%)</td>
+                <td>减少内容重复度，增加原创内容比例；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">0</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">1</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">1</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='1' 
+                    id='improve_input_1' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(1, 0, 1)">
+                <button class='improve-btn' onclick='calcImprove(1, 0, 1)'>计算</button>
+                <div id='improve_result_1' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/gaoji/baoming</td>
+                <td>3</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 66.7%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 33.3%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 1 (33.3%) |
+               良内容: 1 (33.3%) |
+               较差/极差: 1 (33.4%)</p>
+        </td>
+                <td>重复内容比例高(66.7%)、暗示性语言比例高(66.7%)、极差内容比例高</td>
+                <td>减少内容重复度，增加原创内容比例；减少暗示性、营销性语言，提高内容客观性；优先处理极差内容，提高内容深度和价值；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">1</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">2</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">2</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='2' 
+                    id='improve_input_2' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(2, 1, 3)">
+                <button class='improve-btn' onclick='calcImprove(2, 1, 3)'>计算</button>
+                <div id='improve_result_2' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cjks/cf</td>
+                <td>44</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 56.8%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 43.2%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 19 (43.2%) |
+               良内容: 17 (38.6%) |
+               较差/极差: 8 (18.2%)</p>
+        </td>
+                <td>重复内容比例高(20.5%)、暗示性语言比例高(54.5%)</td>
+                <td>减少内容重复度，增加原创内容比例；减少暗示性、营销性语言，提高内容客观性；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">19</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">19</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">21</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='25' 
+                    id='improve_input_3' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(3, 19, 44)">
+                <button class='improve-btn' onclick='calcImprove(3, 19, 44)'>计算</button>
+                <div id='improve_result_3' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cma/cjcx</td>
+                <td>8</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 50.0%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 50.0%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 4 (50.0%) |
+               良内容: 1 (12.5%) |
+               较差/极差: 3 (37.5%)</p>
+        </td>
+                <td>重复内容比例高(50.0%)、暗示性语言比例高(62.5%)</td>
+                <td>减少内容重复度，增加原创内容比例；减少暗示性、营销性语言，提高内容客观性；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">4</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">3</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">4</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='4' 
+                    id='improve_input_4' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(4, 4, 8)">
+                <button class='improve-btn' onclick='calcImprove(4, 4, 8)'>计算</button>
+                <div id='improve_result_4' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/acca/cjcx</td>
+                <td>2</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 50.0%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 50.0%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 1 (50.0%) |
+               良内容: 0 (0.0%) |
+               较差/极差: 1 (50.0%)</p>
+        </td>
+                <td>重复内容比例高(50.0%)</td>
+                <td>减少内容重复度，增加原创内容比例；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">1</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">1</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">1</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='1' 
+                    id='improve_input_5' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(5, 1, 2)">
+                <button class='improve-btn' onclick='calcImprove(5, 1, 2)'>计算</button>
+                <div id='improve_result_5' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cjks/hgz</td>
+                <td>4</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 50.0%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 50.0%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 2 (50.0%) |
+               良内容: 2 (50.0%) |
+               较差/极差: 0 (0.0%)</p>
+        </td>
+                <td>暗示性语言比例高(50.0%)</td>
+                <td>减少暗示性、营销性语言，提高内容客观性；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">2</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">2</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">2</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='2' 
+                    id='improve_input_6' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(6, 2, 4)">
+                <button class='improve-btn' onclick='calcImprove(6, 2, 4)'>计算</button>
+                <div id='improve_result_6' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/cjks/bm</td>
+                <td>20</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 45.0%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 55.0%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 11 (55.0%) |
+               良内容: 6 (30.0%) |
+               较差/极差: 3 (15.0%)</p>
+        </td>
+                <td>暗示性语言比例高(65.0%)</td>
+                <td>减少暗示性、营销性语言，提高内容客观性；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">11</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">6</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">7</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='9' 
+                    id='improve_input_7' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(7, 11, 20)">
+                <button class='improve-btn' onclick='calcImprove(7, 11, 20)'>计算</button>
+                <div id='improve_result_7' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+            <tr>
+                <td>www.dongao.com/acca/bm</td>
+                <td>8</td>
+                <td>
+            <div class="quality-distribution">
+                <span class="quality-label">较差/极差:</span>
+                <div class="quality-bar-container">
+                    <div class="quality-bar poor-quality-bar" style="width: 37.5%;"></div>
+                    <div class="quality-bar good-quality-bar" style="width: 62.5%;"></div>
+                </div>
+                <span class="quality-label">优:</span>
+            </div>
+            <p>优内容: 5 (62.5%) |
+               良内容: 2 (25.0%) |
+               较差/极差: 1 (12.5%)</p>
+        </td>
+                <td>重复内容比例高(37.5%)</td>
+                <td>减少内容重复度，增加原创内容比例；提高内容原创度和专业深度。</td>
+                <td class="optimization-target-cell">
+            <p><strong>当前优内容:</strong> <span class="need-optimize">5</span> 条</p>
+            <p><strong>达到85%需优化:</strong> <span class="need-optimize">2</span> 条</p>
+            <p><strong>达到90%需优化:</strong> <span class="need-optimize">3</span> 条</p>
+            <div class="improve-interactive">
+                <input type='number' min='0' max='3' 
+                    id='improve_input_8' placeholder='优化条数' class='improve-input'
+                    onkeydown="if(event.key==='Enter')calcImprove(8, 5, 8)">
+                <button class='improve-btn' onclick='calcImprove(8, 5, 8)'>计算</button>
+                <div id='improve_result_8' class='improve-result'></div>
+            </div>
+        </td>
+            </tr>
+        </table>
+        <div class="summary-optimization-targets">
+            <h3>总优化需求</h3>
+            <p>将所有低质量目录提升至85%优内容标准需要优化: <span class="optimization-number">37</span> 条URL</p>
+            <p>将所有低质量目录提升至90%优内容标准需要优化: <span class="optimization-number">42</span> 条URL</p>
+        </div>
+        <div class="improvement-tips">
+            <h3>通用改进策略</h3>
+            <ul>
+                <li><strong>内容深度提升</strong>：增加专业信息、数据支持和实用案例</li>
+                <li><strong>减少重复内容</strong>：避免页面间内容大量重复，保持原创性</li>
+                <li><strong>提高表达客观性</strong>：减少营销和推广性质的语言</li>
+                <li><strong>优化内容结构</strong>：使用合理的标题层级和段落划分</li>
+                <li><strong>增加内容时效性</strong>：定期更新与行业最新动态相关的内容</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+    function calcImprove(idx, current, total) {
+        var input = document.getElementById('improve_input_' + idx);
+        var result = document.getElementById('improve_result_' + idx);
+        var add = parseInt(input.value);
+        if (isNaN(add)) add = 0;
+        if (add < 0) add = 0;
+        if (add > total - current) add = total - current;
+        var new_quality = current + add;
+        var percent = (new_quality / total * 100).toFixed(1);
+        var msg = '';
+        result.className = 'improve-result';
+        if (add === 0) {
+            msg = '请输入大于0的优化条数';
+            result.classList.add('error');
+        } else {
+            msg = '优化后优内容：' + new_quality + ' 条，优内容比例：' + percent + '%。';
+            if (percent >= 90) {
+                msg += ' 🎉 已达到90%目标！';
+                result.classList.add('success');
+            } else if (percent >= 85) {
+                msg += ' 👍 已达到85%目标！';
+                result.classList.add('success');
+            } else {
+                var need85 = Math.ceil(total * 0.85) - new_quality;
+                var need90 = Math.ceil(total * 0.90) - new_quality;
+                msg += ' 距85%还需优化 ' + (need85 > 0 ? need85 : 0) + ' 条，距90%还需优化 ' + (need90 > 0 ? need90 : 0) + ' 条。';
+                result.classList.add('warning');
+            }
+        }
+        result.innerText = msg;
+    }
+    </script>
+    
+    <script>
+    window.lowQualityDirUrls = {"www.dongao.com/cma/cjcx": ["https://www.dongao.com/cma/cjcx/202506104565897.html", "https://www.dongao.com/cma/cjcx/202506134566576.html", "https://www.dongao.com/cma/cjcx/202506104565898.html"], "www.dongao.com/cjks/cf": ["https://www.dongao.com/cjks/cf/202506134567194.html", "https://www.dongao.com/cjks/cf/202506134565191.html", "https://www.dongao.com/cjks/cf/202506124565195.html", "https://www.dongao.com/cjks/cf/202506114563301.html", "https://www.dongao.com/cjks/cf/202506104566080.html", "https://www.dongao.com/cjks/cf/202506104566033.html", "https://www.dongao.com/cjks/cf/202506094565617.html", "https://www.dongao.com/cjks/cf/202506094565628.html"], "www.dongao.com/acca/cjcx": ["https://www.dongao.com/acca/cjcx/202506094565398.html"], "www.dongao.com/acca/bm": ["https://www.dongao.com/acca/bm/202506124566578.html"], "www.dongao.com/cjks/bm": ["https://www.dongao.com/cjks/bm/202506124565205.html", "https://www.dongao.com/cjks/bm/202506104563289.html", "https://www.dongao.com/cjks/bm/202506094565490.html"], "www.dongao.com/gaoji/baoming": ["https://www.dongao.com/gaoji/baoming/202506114566474.html"]};
+    </script>
+    
+    </div>
+<script>
+// ... existing code ...
+
+// 下载功能
+function downloadCheckResults(data, filename) {
+    try {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        console.log('检查结果已下载:', filename);
+    } catch (error) {
+        console.error('下载失败:', error);
+        // 如果下载失败，显示结果在新窗口
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+    }
+}
+
+// 生成CSV格式的检查结果
+function generateCSVReport(directoryStats, detailedResults) {
+    try {
+        const csvRows = [];
+        
+        // CSV头部
+        csvRows.push('目录,总URL数,可访问,已下线(404),超时,连接错误,其他错误');
+        
+        // 目录统计
+        for (const [directory, stats] of Object.entries(directoryStats)) {
+            csvRows.push([
+                directory,
+                stats.total || 0,
+                stats.accessible || 0,
+                stats.not_found || 0,
+                stats.timeout || 0,
+                stats.connection_error || 0,
+                stats.error + stats.unknown_error || 0
+            ].join(','));
+        }
+        
+        csvRows.push(''); // 空行
+        csvRows.push('详细URL检查结果');
+        csvRows.push('URL,状态,状态码,消息');
+        
+        // 详细结果
+        if (detailedResults && Array.isArray(detailedResults)) {
+            for (const result of detailedResults) {
+                csvRows.push([
+                    result.url || '',
+                    result.status || '',
+                    result.status_code || '',
+                    (result.message || '').replace(/,/g, ';') // 替换逗号避免CSV格式问题
+                ].join(','));
+            }
+        }
+        
+        return csvRows.join('\n');
+    } catch (error) {
+        console.error('生成CSV失败:', error);
+        return null;
+    }
+}
+
+// 404检查功能 - 使用服务器端API（增强版）
+document.getElementById('check404Btn').addEventListener('click', async function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    
+    // 防止重复点击
+    if (btn.disabled) return;
+    
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.innerHTML = '<div class="spinner"></div>检查中...';
+
+    const dirUrls = window.lowQualityDirUrls || {};
+    let checkResults = null;
+    
+    try {
+        // 验证数据
+        if (!dirUrls || Object.keys(dirUrls).length === 0) {
+            throw new Error('没有找到需要检查的URL数据');
+        }
+        
+        console.log('开始404检查，目录数:', Object.keys(dirUrls).length);
+        
+        // 调用服务器端404检查API
+        const response = await fetch('http://localhost:8080/api/check_404', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                urls: dirUrls
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`服务器响应错误: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        checkResults = result; // 保存结果用于下载
+        
+        if (result.success) {
+            console.log('404检查成功完成');
+            
+            // 先清除所有目录优化目标区域的旧统计
+            try {
+                document.querySelectorAll('.optimization-target-cell .downline-stat').forEach(e => e.remove());
+            } catch (e) {
+                console.warn('清除旧统计时出错:', e);
+            }
+            
+            const directoryStats = result.directory_stats || {};
+            let updatedCount = 0;
+            
+            // 更新页面优化目标区域
+            try {
+                const rows = document.querySelectorAll('.low-quality-table tr');
+                for (const row of rows) {
+                    const dirCell = row.cells && row.cells[0];
+                    if (dirCell) {
+                        const dirName = dirCell.textContent.trim();
+                        const stats = directoryStats[dirName];
+                        
+                        if (stats) {
+                            const optCell = row.cells[row.cells.length - 1];
+                            let statDiv = optCell.querySelector('.downline-stat');
+                            if (!statDiv) {
+                                statDiv = document.createElement('div');
+                                statDiv.className = 'downline-stat';
+                                statDiv.style.margin = '8px 0 0 0';
+                                statDiv.style.fontSize = '0.98em';
+                            }
+                            
+                            const downCount = stats.not_found || 0;
+                            const accessibleCount = stats.accessible || 0;
+                            const totalChecked = stats.total || 0;
+                            
+                            // 安全地计算剩余需优化数量
+                            let needNum = 0;
+                            try {
+                                const need85Match = optCell.innerHTML.match(/达到85%需优化:<\/strong>\s*<span[^>]*>(\d+)<\/span>/);
+                                needNum = need85Match ? parseInt(need85Match[1]) : 0;
+                            } catch (e) {
+                                console.warn('解析优化目标数量时出错:', e);
+                            }
+                            
+                            let remain = Math.max(needNum - downCount, 0);
+                            
+                            statDiv.innerHTML = `
+                                <div style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #17a2b8;">
+                                    <div style="margin-bottom: 4px;"><span style='color:#e74c3c; font-weight: bold;'>已下线: ${downCount}条</span></div>
+                                    <div style="margin-bottom: 4px;"><span style='color:#27ae60; font-weight: bold;'>可访问: ${accessibleCount}条</span></div>
+                                    <div><span style='color:#e67e22; font-weight: bold;'>剩余需优化: ${remain}条</span></div>
+                                </div>
+                            `;
+                            optCell.appendChild(statDiv);
+                            updatedCount++;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('更新页面统计时出错:', e);
+            }
+            
+            // 显示总体统计和下载按钮
+            const totalStats = result.summary || {};
+            const total404 = totalStats.total_404 || 0;
+            const totalUrls = totalStats.total_urls || 0;
+            
+            btn.innerHTML = `
+                <span>检查完成</span>
+                <div style="font-size: 0.9em; margin-top: 4px;">
+                    ${total404}个404 / ${totalUrls}个URL
+                </div>
+            `;
+            
+            // 自动下载检查结果
+            try {
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const jsonFilename = `404检查结果_${timestamp}.json`;
+                downloadCheckResults(result, jsonFilename);
+                
+                // 同时生成CSV格式
+                const csvContent = generateCSVReport(directoryStats, result.detailed_results);
+                if (csvContent) {
+                    const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const csvUrl = URL.createObjectURL(csvBlob);
+                    const csvLink = document.createElement('a');
+                    csvLink.href = csvUrl;
+                    csvLink.download = `404检查结果_${timestamp}.csv`;
+                    document.body.appendChild(csvLink);
+                    csvLink.click();
+                    document.body.removeChild(csvLink);
+                    URL.revokeObjectURL(csvUrl);
+                }
+                
+                // 显示下载成功提示
+                const downloadMsg = document.createElement('div');
+                downloadMsg.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; z-index: 10000;
+                    background: #28a745; color: white; padding: 12px 20px;
+                    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    font-size: 14px; font-weight: bold;
+                `;
+                downloadMsg.textContent = '✅ 检查结果已自动下载 (JSON + CSV)';
+                document.body.appendChild(downloadMsg);
+                
+                setTimeout(() => {
+                    if (downloadMsg.parentNode) {
+                        downloadMsg.parentNode.removeChild(downloadMsg);
+                    }
+                }, 5000);
+                
+            } catch (downloadError) {
+                console.error('下载结果时出错:', downloadError);
+            }
+            
+            // 5秒后恢复按钮
+            setTimeout(() => {
+                btn.innerHTML = '<span>重新检查下线</span>';
+            }, 5000);
+            
+            console.log(`页面更新完成，共更新了 ${updatedCount} 个目录的统计信息`);
+            
+        } else {
+            throw new Error(result.error || '404检查失败');
+        }
+        
+    } catch (error) {
+        console.error('404检查出错:', error);
+        btn.innerHTML = '<span>检查失败，点击重试</span>';
+        
+        // 显示友好的错误提示
+        const errorMsg = document.createElement('div');
+        errorMsg.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 10000;
+            background: #dc3545; color: white; padding: 12px 20px;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 14px; max-width: 300px;
+        `;
+        
+        let errorText = '404检查失败：' + error.message;
+        if (error.message.includes('fetch')) {
+            errorText += '\n\n请确保Flask应用正在运行 (http://localhost:8080)';
+        }
+        
+        errorMsg.textContent = errorText;
+        document.body.appendChild(errorMsg);
+        
+        setTimeout(() => {
+            if (errorMsg.parentNode) {
+                errorMsg.parentNode.removeChild(errorMsg);
+            }
+        }, 8000);
+        
+        // 5秒后恢复按钮
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 5000);
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+    }
+});
+// ... existing code ...
+</script>
+
+</body>
+</html>
